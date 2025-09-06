@@ -13,6 +13,7 @@ import InitialCash from './pages/InitialCash';
 import CashSummary from './pages/CashSummary';
 import SplashScreen from './Components/Splash';
 import LogoOverlay from './Components/ImageOverlay';
+import { ThemeProvider } from './context/ThemeContext';
 
 const AppRoutes = () => {
   const { isAuthUser, isRegistered, loading } = useContext(GlobalContext);
@@ -58,15 +59,19 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <GlobalState>
-      <BrowserRouter>
-      <div className='font-inter'>
-         <AppRoutes />
-        <LogoOverlay />
-      </div>
-       
-      </BrowserRouter>
-    </GlobalState>
+    <ThemeProvider>
+      <GlobalState>
+        <BrowserRouter>
+        
+          <div>
+            <AppRoutes />
+            <LogoOverlay />
+          </div>
+
+        </BrowserRouter>
+      </GlobalState>
+    </ThemeProvider>
+
   );
 }
 

@@ -26,3 +26,25 @@ export const saveRemCash = async({date , notes , coins , remarks}) => {
         return{success : false , message : e}
     }
 }
+
+export const getRemCash = async(date = null) => {
+
+    try {
+        let url =  `http://localhost:${localhost}/api/v1/counter/getRemainingCash`
+        if(date) {
+            url += `?date=${date}`
+        } 
+
+        const res = await fetch(url)
+        if(!res.ok) {
+            throw new Error("Something went wrong while fetching the data");
+        }
+
+        return await res.json()
+
+    } catch (e) {
+        console.log('error' , e)
+        return { success: false, message: e };
+    }
+
+}

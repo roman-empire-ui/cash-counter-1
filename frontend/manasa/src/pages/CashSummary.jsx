@@ -1,6 +1,7 @@
 import React from 'react';
 import InitialCash from './InitialCash';
 import RemainingCash from './RemCash';
+import Notification from '../Components/Notification';
 
 const CashSummary = () => {
   return (
@@ -16,6 +17,7 @@ const CashSummary = () => {
           <RemainingCash />
         </div>
       </div>
+      <Notification/>
     </div>
   );
 };

@@ -1,0 +1,16 @@
+/* Thin Black Scrollbar */
+.scroll-thin-black::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scroll-thin-black::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroll-thin-black::-webkit-scrollbar-thumb {
+    background-color: black;
+    border-radius: 4px;
+  }
+  .scroll-thin-black {
+    scrollbar-width: thin;
+    scrollbar-color: black transparent;
+  }
+  

@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, Package2, CreditCard, PackageCheckIcon, DoorOpen } from 'lucide-react'
 import { GlobalContext } from '../context/globalContext'
+import ThemeToggle from './Theme'
 
 const Navigation = () => {
   const {logout , isAuthUser , user} = useContext(GlobalContext)
@@ -22,7 +23,9 @@ const Navigation = () => {
   }
 
   return (
-    <nav className="bg-gradient-to-br from-purple-600 to-purple-800 bg-opacity-90 py-2 text-white shadow-sm w-full sticky top-0 z-50">
+    <nav className="bg-gradient-to-br from-purple-600 to-purple-800 
+                dark:from-gray-900 dark:to-black 
+                bg-opacity-90 py-2 text-white shadow-sm w-full sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           {/* Logo - center on mobile, left on desktop */}
@@ -34,13 +37,17 @@ const Navigation = () => {
               <img
                 src="/images/logo.jpg"
                 alt="Logo"
-                className=" w-54 rounded-full object-cover shadow-md"
+                className="w-54 rounded-full object-cover shadow-md"
               />
               <span className="hidden sm:inline text-center">
                 {" "}
-                {user ? `Welcome ${user.name}` : "Welcome to Cash Counter"}{" "}
+                {user ? <div className='font-serif'> welcome {user.name} </div> : "Welcome to Cash Counter"}{" "}
               </span>
             </h1>
+          </div>
+
+          <div className="flex justify-center">
+            <ThemeToggle />
           </div>
 
           {/* Nav Links - hidden on small screens */}
@@ -49,7 +56,7 @@ const Navigation = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition duration-300 ${
+                className={`inline-flex items-center px-1 pt-1 text-sm font-medium font-serif transition duration-300 ${
                   isActive(item.path)
                     ? "text-yellow-300 drop-shadow-[0_0_6px_rgba(255,255,0,0.8)]"
                     : "text-white hover:text-yellow-300 hover:drop-shadow-[0_0_6px_rgba(255,255,0,0.8)]"

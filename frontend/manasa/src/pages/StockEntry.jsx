@@ -20,6 +20,9 @@ const StockEntry = () => {
   const [amountHave, setAmountHave] = useState('');
   const [remainingAmount, setRemainingAmount] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pincode, setPincode] = useState('')
+  const [paytm, setPaytm] = useState('')
+  const [companies, setCompanies] = useState([{ name: '', amount: '' }])
   const summaryRef = useRef(null);
 
   useEffect(() => {
@@ -126,6 +129,14 @@ const StockEntry = () => {
   }, [amountHave, stockList]);
 
 
+  const totalCompanies = companies.reduce((sum, c) => sum + Number(c.amount || 0), 0)
+  const finalTotal =
+    Number(remainingAmount || 0) +
+    Number(pincode || 0) +
+    Number(paytm || 0) + totalCompanies
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black text-white p-4 sm:p-6 md:p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -133,14 +144,18 @@ const StockEntry = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-green-400">
             📦 Daily Stock Entry
           </h1>
-          <span className="text-sm text-gray-400">Track suppliers & expenses with ease</span>
+          <span className="text-sm text-gray-400">
+            Track suppliers & expenses with ease
+          </span>
         </header>
 
         {/* Stock Form */}
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-lg p-4 sm:p-6 space-y-6">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300">Date</label>
+              <label className="block text-sm font-medium text-gray-300">
+                Date
+              </label>
               <input
                 type="date"
                 value={date}
@@ -149,7 +164,9 @@ const StockEntry = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300">Total Expense</label>
+              <label className="block text-sm font-medium text-gray-300">
+                Total Expense
+              </label>
               <input
                 readOnly
                 value={`₹${total}`}
@@ -159,19 +176,26 @@ const StockEntry = () => {
           </div>
 
           {distributors.map((d, i) => (
-            <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div
+              key={i}
+              className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
+            >
               <input
                 type="text"
                 placeholder={`Supplier ${i + 1}`}
                 value={d.name}
-                onChange={(e) => handleDistributorChange(i, 'name', e.target.value)}
+                onChange={(e) =>
+                  handleDistributorChange(i, "name", e.target.value)
+                }
                 className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
               />
               <input
                 type="number"
                 placeholder="Amount ₹"
                 value={d.totalPaid}
-                onChange={(e) => handleDistributorChange(i, 'totalPaid', e.target.value)}
+                onChange={(e) =>
+                  handleDistributorChange(i, "totalPaid", e.target.value)
+                }
                 className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
               />
               <button
@@ -203,7 +227,9 @@ const StockEntry = () => {
 
         {/* Stock Summary */}
         <div ref={summaryRef} className="bg-white/5 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-emerald-400 mb-4">📊 Stock Summary</h2>
+          <h2 className="text-xl font-bold text-emerald-400 mb-4">
+            📊 Stock Summary
+          </h2>
 
           {loading ? (
             <div className="animate-pulse space-y-4">
@@ -218,23 +244,26 @@ const StockEntry = () => {
                   <tr className="bg-purple-800">
                     <th className="p-3 border border-gray-600">Date</th>
                     <th className="p-3 border border-gray-600">Suppliers</th>
-                    <th className="p-3 border border-gray-600 text-right">Amount (₹)</th>
-
-
+                    <th className="p-3 border border-gray-600 text-right">
+                      Amount (₹)
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {stockList.map((entry, index) => (
                     <React.Fragment key={index}>
                       {entry.distributors.map((d, i) => (
-                        <tr key={i} className="odd:bg-white/5 even:bg-white/10 border-b border-gray-600">
+                        <tr
+                          key={i}
+                          className="odd:bg-white/5 even:bg-white/10 border-b border-gray-600"
+                        >
                           {/* Show date only for first distributor row */}
                           {i === 0 ? (
                             <td
                               rowSpan={entry.distributors.length + 1}
                               className="p-3 border border-gray-600 align-top text-sm text-center font-medium"
                             >
-                              {entry.date?.split('T')[0]}
+                              {entry.date?.split("T")[0]}
                             </td>
                           ) : null}
 
@@ -245,8 +274,14 @@ const StockEntry = () => {
                               <div className="hidden group-hover:flex gap-2">
                                 <button
                                   onClick={async () => {
-                                    const newName = prompt("Edit name:", d.name);
-                                    const newAmount = prompt("Edit amount:", d.totalPaid);
+                                    const newName = prompt(
+                                      "Edit name:",
+                                      d.name
+                                    );
+                                    const newAmount = prompt(
+                                      "Edit amount:",
+                                      d.totalPaid
+                                    );
                                     if (newName && newAmount !== null) {
                                       const res = await updateStock({
                                         stockId: entry._id,
@@ -257,7 +292,9 @@ const StockEntry = () => {
                                       if (res?.success) {
                                         toast.success("Updated!");
                                         const updatedList = stockList.map((s) =>
-                                          s._id === entry._id ? res.stockEntry : s
+                                          s._id === entry._id
+                                            ? res.stockEntry
+                                            : s
                                         );
                                         setStockList(updatedList);
                                       } else toast.error("Update failed");
@@ -311,8 +348,6 @@ const StockEntry = () => {
                     </React.Fragment>
                   ))}
                 </tbody>
-
-
               </table>
             </div>
           )}
@@ -320,7 +355,9 @@ const StockEntry = () => {
           {/* Remaining Amount */}
           {stockList.length > 0 && (
             <div className="bg-white/10 mt-6 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-bold text-cyan-400">💰 Remaining Amount</h3>
+              <h3 className="text-lg font-bold text-cyan-400">
+                💰 Remaining Amount
+              </h3>
               <div className="grid sm:grid-cols-3 gap-4">
                 <input
                   type="number"
@@ -340,6 +377,82 @@ const StockEntry = () => {
                   Remaining: ₹{remainingAmount}
                 </div>
               )}
+
+              <div className="space-y-4 mt-6">
+                <h3 className="text-lg font-bold text-purple-400">
+                  ➕ Add Extra Sources
+                </h3>
+
+                {/* Pincode & Paytm */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <input
+                    type="number"
+                    placeholder="Pincode ₹"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Paytm ₹"
+                    value={paytm}
+                    onChange={(e) => setPaytm(e.target.value)}
+                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                  />
+                </div>
+
+                {/* Companies */}
+                {companies.map((c, i) => (
+                  <div key={i} className="grid grid-cols-12 gap-3 items-center">
+                    <input
+                      type="text"
+                      placeholder="Company Name"
+                      value={c.name}
+                      onChange={(e) => {
+                        const updated = [...companies];
+                        updated[i].name = e.target.value;
+                        setCompanies(updated);
+                      }}
+                      className="col-span-6 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Amount ₹"
+                      value={c.amount}
+                      onChange={(e) => {
+                        const updated = [...companies];
+                        updated[i].amount = e.target.value;
+                        setCompanies(updated);
+                      }}
+                      className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                    />
+                    <button
+                      onClick={() => {
+                        const updated = [...companies];
+                        updated.splice(i, 1);
+                        setCompanies(updated);
+                      }}
+                      className="w-8 h-8 bg-gray-600 hover:bg-red-600 rounded-full text-white flex items-center justify-center"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() =>
+                    setCompanies([...companies, { name: "", amount: "" }])
+                  }
+                  className="px-4 py-2 bg-green-600 rounded-full text-white"
+                >
+                  + Add Company
+                </button>
+              </div>
+
+              {/* Final Total */}
+              <hr className="border-gray-600 my-4" />
+              <div className="text-xl font-bold text-yellow-300">
+                Final Total: ₹{finalTotal}
+              </div>
             </div>
           )}
         </div>
