@@ -80,3 +80,4 @@ export const getInitialCash = async(req , res) => {
         initialCash : initial
     })
 }
+

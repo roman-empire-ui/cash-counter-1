@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getStocks, updateStock } from "../services/stockEntry";
+import { deleteStock, getStocks, updateStock } from "../services/stockEntry";
 import { toast } from "react-toastify";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 const AllStocks = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -94,11 +94,86 @@ const AllStocks = () => {
     }
   };
 
+
+  const hanDeleteDistributor = async (stockId, distributorId) => {
+    // Ask for confirmation
+    const confirmDelete = window.confirm("Are you sure you want to delete this distributor?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await deleteStock({ stockId, distributorId }); // call your backend
+
+      if (res.success) {
+        toast.success(res.message || "Deleted successfully");
+
+        // Update frontend state immediately
+        const updatedStocks = allStocks
+          .map((stock) => {
+            if (stock._id === stockId) {
+              // If only one distributor, remove the entire stock entry
+              if (stock.distributors.length === 1) {
+                return null;
+              }
+
+              // Otherwise, remove only the selected distributor
+              const updatedDistributors = stock.distributors.filter(
+                (d) => d._id !== distributorId
+              );
+
+              const updatedTotal = updatedDistributors.reduce(
+                (sum, d) => sum + Number(d.totalPaid || 0),
+                0
+              );
+
+              return {
+                ...stock,
+                distributors: updatedDistributors,
+                totalStockExpenses: updatedTotal,
+              };
+            }
+            return stock;
+          })
+          .filter(Boolean); // remove null (for deleted cards)
+
+        setAllStocks(updatedStocks);
+        setFilteredStocks(updatedStocks);
+
+        // If modal is open, update or close it
+        if (selectedStock?._id === stockId) {
+          const stock = allStocks.find((s) => s._id === stockId);
+
+          if (stock.distributors.length === 1) {
+            // close modal if card deleted
+            setSelectedStock(null);
+          } else {
+            const updatedDistributors = stock.distributors.filter(
+              (d) => d._id !== distributorId
+            );
+            const updatedTotal = updatedDistributors.reduce(
+              (sum, d) => sum + Number(d.totalPaid || 0),
+              0
+            );
+            setSelectedStock((prev) => ({
+              ...prev,
+              distributors: updatedDistributors,
+              totalStockExpenses: updatedTotal,
+            }));
+          }
+        }
+      } else {
+        toast.error(res.message || "Delete failed");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong while deleting");
+    }
+  };
+
   return (
     <div className="p-8 min-h-screen font-inter bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
       {/* Title */}
       <h1 className="text-4xl font-serif font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 tracking-wide">
-         Stock History
+        Stock History
       </h1>
 
       {/* Search Bar */}
@@ -106,7 +181,7 @@ const AllStocks = () => {
         <input
           type="text"
           placeholder="Search distributor..."
-          className="w-full p-4 rounded-2xl bg-white/10 text-white placeholder-gray-400 
+          className="w-full p-4 rounded-full bg-white/10 text-white placeholder-gray-400 
                      border border-white/20 shadow-md
                      focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
           value={search}
@@ -121,30 +196,30 @@ const AllStocks = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {filteredStocks.map((entry, i) => (
             <div
-            key={i}
-            onClick={() => setSelectedStock(entry)}
-            className="cursor-pointer p-6 rounded-3xl
+              key={i}
+              onClick={() => setSelectedStock(entry)}
+              className="cursor-pointer p-6 rounded-3xl
                        bg-white/10 backdrop-blur-lg
                        border border-white/20 shadow-lg
                        hover:shadow-cyan-400/40 hover:scale-[1.04]
                        transition-all duration-300 ease-in-out"
-          >
-            <h2 className="text-2xl font-bold text-cyan-300 mb-3">
-              {entry.date?.split("T")[0]}
-            </h2>
-            <p className="text-gray-200 text-base">
-              <span className="font-semibold">Distributors:</span>{" "}
-              {entry.distributors.map((d) => d.name).join(", ")}
-            </p>
-            <p className="text-gray-200 text-base mt-1">
-              <span className="font-semibold">Amounts:</span>{" "}
-              {entry.distributors.map((d) => `₹${d.totalPaid}`).join(", ")}
-            </p>
-            <p className="text-green-400 font-extrabold mt-4 text-xl drop-shadow">
-              Total: ₹{entry.totalStockExpenses}
-            </p>
-          </div>
-          
+            >
+              <h2 className="text-2xl font-bold text-cyan-300 mb-3">
+                {entry.date?.split("T")[0]}
+              </h2>
+              <p className="text-gray-200 text-base">
+                <span className="font-semibold">Distributors:</span>{" "}
+                {entry.distributors.map((d) => d.name).join(", ")}
+              </p>
+              <p className="text-gray-200 text-base mt-1">
+                <span className="font-semibold">Amounts:</span>{" "}
+                {entry.distributors.map((d) => `₹${d.totalPaid}`).join(", ")}
+              </p>
+              <p className="text-green-400 font-extrabold mt-4 text-xl drop-shadow">
+                Total: ₹{entry.totalStockExpenses}
+              </p>
+            </div>
+
           ))}
         </div>
       )}
@@ -186,21 +261,21 @@ const AllStocks = () => {
             </h2>
 
             {/* Stock Info */}
-            <p className="text-gray-300 mb-6 text-lg">
+            <p className="text-gray-300 mb-6 text-lg font-mono">
               <span className="font-semibold">Date:</span>{" "}
               {selectedStock.date?.split("T")[0]}
             </p>
 
             {/* Distributor List */}
-            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scroll">
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 scroll-thin-black custom-scroll">
               {selectedStock.distributors.map((d) => (
                 <div
                   key={d._id}
-                  className="p-5 rounded-2xl 
+                  className="p-4 rounded-xl 
                              bg-gradient-to-r from-cyan-700/30 to-purple-500/20
                              border border-purple-400/30 shadow-lg 
-                             hover:shadow-purple-400/50 hover:scale-[1.02]
-                             transition-all"
+                             hover:shadow-purple-400/50 hover:scale-[1]
+                             transition-all font-mono"
                 >
                   {editingDistributor === d._id ? (
                     <>
@@ -231,13 +306,13 @@ const AllStocks = () => {
                           onClick={() =>
                             handleSaveEdit(selectedStock._id, d._id)
                           }
-                          className="flex-1 py-2 bg-green-600 rounded-xl hover:bg-green-700 transition"
+                          className="flex-1 py-2 bg-green-600 rounded-xl hover:bg-green-700 transition font-serif"
                         >
                           ✅ Save
                         </button>
                         <button
                           onClick={() => setEditingDistributor(null)}
-                          className="flex-1 py-2 bg-gray-600 rounded-xl hover:bg-gray-700 transition"
+                          className="flex-1 py-2 bg-gray-600 rounded-xl hover:bg-gray-700 transition font-serif"
                         >
                           ❌ Cancel
                         </button>
@@ -245,10 +320,10 @@ const AllStocks = () => {
                     </>
                   ) : (
                     <>
-                      <p className="text-lg font-semibold text-white">
+                      <p className="text-2xl  text-green-400">
                         {d.name}
                       </p>
-                      <p className="text-gray-300 mt-1">
+                      <p className="mt-1 text-2xl text-red-400">
                         <span className="font-medium">Paid:</span> ₹{d.totalPaid}
                       </p>
                       <button
@@ -259,9 +334,16 @@ const AllStocks = () => {
                             totalPaid: d.totalPaid,
                           });
                         }}
-                        className="mt-3 px-3 py-1 bg-blue-600 rounded-full hover:bg-blue-700 transition"
+                        className="mt-3 px-3 py-1 bg-green-600 rounded-full hover:bg-blue-700 transition"
                       >
-                        <Pencil size={16} />
+                        <Pencil size={20} />
+                      </button>
+
+                      <button
+                        onClick={() => hanDeleteDistributor(selectedStock._id, d._id)}
+                        className="mt-3 px-3 ml-4 py-1 bg-blue-600 rounded-full hover:bg-red-500"
+                      >
+                        <Trash2 size={20}/>
                       </button>
                     </>
                   )}
@@ -271,7 +353,7 @@ const AllStocks = () => {
 
             {/* Footer */}
             <div className="mt-6 border-t border-purple-500/30 pt-4 text-right">
-              <p className="text-2xl font-bold text-pink-400">
+              <p className="text-2xl font-bold text-pink-400 font-mono">
                 Total Expense: ₹{selectedStock.totalStockExpenses}
               </p>
             </div>

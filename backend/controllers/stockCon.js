@@ -109,13 +109,13 @@ export const updateStock = async (req, res) => {
 
         const stockEntry = await Stock.findById(stockId);
         if (!stockEntry) {
-            return res.status(404).json({success : false,  error: 'Stock entry not found' });
+            return res.status(404).json({success : false,  message: 'Stock entry not found' });
         }
 
         // Find distributor inside the stock entry
         const distributor = stockEntry.distributors.find(d => d._id.toString() === distributorId);
         if (!distributor) {
-            return res.status(404).json({success : false, error: 'Distributor not found' });
+            return res.status(404).json({success : false, message: 'Distributor not found' });
         }
 
         // Update distributor details
@@ -131,7 +131,7 @@ export const updateStock = async (req, res) => {
 
     } catch (e) {
         console.error('Error:', e);
-        res.status(500).json({success : false, error: 'Internal server error' });
+        res.status(500).json({success : false, message: 'Internal server error' });
     }
 };
 

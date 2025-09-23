@@ -1,8 +1,6 @@
 
 const localhost = 4001
 
-
-
 export const signup = async(userData) =>{
 
     try{

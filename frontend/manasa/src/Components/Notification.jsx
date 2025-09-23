@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 
-export default function Notification() {
+  const Notification = () => {
 
 
     return (
@@ -22,3 +22,5 @@ export default function Notification() {
         />
     )
 }
+
+export default Notification

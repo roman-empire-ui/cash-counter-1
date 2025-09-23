@@ -6,6 +6,7 @@ import connectToDB from './db/config.js'
 import adminRoutes from './routes/userRouter.js'
 import stockRoutes from './routes/stockRouter.js'
 import counterRoutes from './routes/counterRouter.js'
+import distRoutes from './routes/distributorRouter.js'
 
 //Using middlewares
 const app = express()
@@ -19,6 +20,7 @@ const PORT  = process.env.PORT_URI || 4000
 app.use('/api/v1/admin', adminRoutes)
 app.use('/api/v1/stock' , stockRoutes)
 app.use('/api/v1/counter' , counterRoutes)
+app.use("/api/v1/dist", distRoutes);
 //Connecting Database
 connectToDB()
 

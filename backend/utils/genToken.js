@@ -1,12 +1,11 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
+const genToken = (id) => {
+  return jwt.sign(
+    { id }, // use "id" instead of "adminId" for consistency
+    process.env.SECRET_KEY || 'default_secret_key',
+    { expiresIn: '30d' } // token valid for 30 days
+  );
+};
 
-
-
-const genToken  = (adminId ) => {
-
-    return  jwt.sign({adminId} , process.env.SECRET_KEY, {expiresIn : '1d'})
-    
-}
-
-export default genToken; 
+export default genToken;

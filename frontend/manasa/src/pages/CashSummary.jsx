@@ -16,7 +16,9 @@ const CashSummary = () => {
         <div className="bg-white/10 rounded-xl p-6 shadow-md">
           <RemainingCash />
         </div>
+        
       </div>
+      
       <Notification/>
     </div>
   );

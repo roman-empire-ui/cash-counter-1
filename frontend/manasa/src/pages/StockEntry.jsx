@@ -11,10 +11,13 @@ import { toast } from 'react-toastify';
 import Notification from '../Components/Notification';
 import { Trash2, PlusCircle, FilePlus2, Pencil } from 'lucide-react';
 import debounce from 'lodash.debounce'
+import { createDistributor, searchDistributor } from '../services/distributor';
 
 const StockEntry = () => {
   const [date, setDate] = useState('');
   const [distributors, setDistributors] = useState([{ name: '', totalPaid: '' }]);
+  const [suggestions, setSuggestions] = useState([])
+  const [activeIndex, setActiveIndex] = useState(null)
   const [total, setTotal] = useState(0);
   const [stockList, setStockList] = useState([]);
   const [amountHave, setAmountHave] = useState('');
@@ -26,8 +29,77 @@ const StockEntry = () => {
   const summaryRef = useRef(null);
 
   useEffect(() => {
+
     fetchStocks();
   }, []);
+
+
+
+
+
+  // On blur → auto-create if new distributor
+  const handleBlur = async (index) => {
+    const name = distributors[index].name.trim();
+    if (!name) return;
+
+    try {
+      const res = await createDistributor(name);
+
+      // ✅ Only show toast if it's a new one
+      if (res.success && res.isNew) {
+        toast.success("New distributor added!");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error creating distributor");
+    }
+
+    setTimeout(() => {
+      setSuggestions([]);
+      setActiveIndex(null);
+    }, 200);
+  };
+
+  const handleKeyDown = async (e, index) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // prevent form submit
+
+      if (suggestions.length > 0) {
+        // ✅ select first suggestion
+        selectSuggestion(index, suggestions[0]);
+      } else {
+        // ✅ treat as new distributor if not empty
+        await handleBlur(index);
+      }
+    }
+  };
+
+  // Handle typing in distributor input
+  const handleDistributorChange = async (index, field, value) => {
+    const updated = [...distributors];
+    updated[index][field] = value;
+    setDistributors(updated);
+
+    if (field === "name" && value.trim() !== "") {
+      const res = await searchDistributor(value);
+      if (res.success) {
+        setSuggestions(res.data);
+        setActiveIndex(index);
+      }
+    } else {
+      setSuggestions([]);
+      setActiveIndex(null);
+    }
+  };
+
+
+  const selectSuggestion = (index, suggestion) => {
+    const updated = [...distributors];
+    updated[index].name = suggestion;
+    setDistributors(updated);
+    setSuggestions([]);
+    setActiveIndex(null);
+  };
 
   const fetchStocks = async () => {
     setLoading(true);
@@ -35,12 +107,19 @@ const StockEntry = () => {
     if (res.success) {
       const todayEntry = res.data[0];
       if (todayEntry) {
-        setStockList([todayEntry]);
+        // Ensure distributors exist
+        todayEntry.distributors = todayEntry.distributors || [];
+  
+        // Calculate total per day
         const dayTotal = todayEntry.distributors.reduce(
-          (sum, d) => sum + Number(d.totalPaid),
+          (sum, d) => sum + Number(d.totalPaid || 0),
           0
         );
+        todayEntry.totalStockExpenses = dayTotal;
+  
+        setStockList([todayEntry]);
         setTotal(dayTotal);
+  
         const rem = await getRemAmt(todayEntry._id);
         if (rem.success && rem.data) {
           setRemainingAmount(rem.data.remainingAmount);
@@ -55,13 +134,9 @@ const StockEntry = () => {
     }
     setLoading(false);
   };
+  
 
-  const handleDistributorChange = (index, field, value) => {
-    const updated = [...distributors];
-    updated[index][field] = value;
-    setDistributors(updated);
-    calculateTotalExpense(updated);
-  };
+
 
   const addDistributor = () => {
     setDistributors([...distributors, { name: '', totalPaid: '' }]);
@@ -133,15 +208,16 @@ const StockEntry = () => {
   const finalTotal =
     Number(remainingAmount || 0) +
     Number(pincode || 0) +
-    Number(paytm || 0) + totalCompanies
+    Number(paytm || 0) +
+    totalCompanies
 
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black text-white p-4 sm:p-6 md:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black text-white p-4 sm:p-6 md:p-8 font-serif">
       <div className="max-w-5xl mx-auto space-y-8">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-green-400">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-green-400 font-serif">
             📦 Daily Stock Entry
           </h1>
           <span className="text-sm text-gray-400">
@@ -160,7 +236,7 @@ const StockEntry = () => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full mt-1 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                className="w-full mt-1 p-3 rounded-md bg-black/30 border border-gray-700 text-white font-mono text-xl"
               />
             </div>
             <div>
@@ -170,7 +246,7 @@ const StockEntry = () => {
               <input
                 readOnly
                 value={`₹${total}`}
-                className="w-full mt-1 p-3 rounded-md bg-black/30 border border-gray-700 text-yellow-400 font-bold"
+                className="w-full mt-1 p-3 rounded-md bg-black/30 border border-gray-700 text-yellow-400 font-bold font-mono text-xl"
               />
             </div>
           </div>
@@ -178,26 +254,46 @@ const StockEntry = () => {
           {distributors.map((d, i) => (
             <div
               key={i}
-              className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
+              className="relative grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
             >
-              <input
-                type="text"
-                placeholder={`Supplier ${i + 1}`}
-                value={d.name}
-                onChange={(e) =>
-                  handleDistributorChange(i, "name", e.target.value)
-                }
-                className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
-              />
+              {/* Distributor Name Input */}
+              <div className="col-span-5 relative">
+                <input
+                  type="text"
+                  placeholder={`Supplier ${i + 1}`}
+                  value={d.name}
+                  onChange={(e) => handleDistributorChange(i, "name", e.target.value)}
+                  onBlur={() => handleBlur(i)}   // ✅ ensures new distributor auto-saves
+                  onKeyDown={(e) => handleKeyDown(i, e)}
+                  className="w-full p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                />
+
+                {/* ✅ Suggestions Dropdown */}
+                {activeIndex === i && suggestions.length > 0 && (
+                  <ul className="absolute bg-gray-800 border border-gray-700 rounded-md mt-1 w-full z-10 max-h-40 overflow-y-auto">
+                    {suggestions.map((s, idx) => (
+                      <li
+                        key={idx}
+                        className="p-2 cursor-pointer hover:bg-gray-600"
+                        onMouseDown={() => selectSuggestion(i, s)} // ✅ fills input when clicked
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Distributor Amount Input */}
               <input
                 type="number"
                 placeholder="Amount ₹"
                 value={d.totalPaid}
-                onChange={(e) =>
-                  handleDistributorChange(i, "totalPaid", e.target.value)
-                }
+                onChange={(e) => handleDistributorChange(i, "totalPaid", e.target.value)}
                 className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
               />
+
+              {/* Remove Distributor Button */}
               <button
                 onClick={() => removeDistributor(i)}
                 className="w-10 h-10 bg-gray-600 hover:bg-red-600 text-white rounded-full flex items-center justify-center"
@@ -206,6 +302,7 @@ const StockEntry = () => {
               </button>
             </div>
           ))}
+
 
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <button
@@ -261,7 +358,7 @@ const StockEntry = () => {
                           {i === 0 ? (
                             <td
                               rowSpan={entry.distributors.length + 1}
-                              className="p-3 border border-gray-600 align-top text-sm text-center font-medium"
+                              className="p-3 border border-gray-600 align-top  text-xl text-center font-medium font-mono"
                             >
                               {entry.date?.split("T")[0]}
                             </td>
@@ -330,7 +427,7 @@ const StockEntry = () => {
                           </td>
 
                           {/* Amount */}
-                          <td className="p-3 border-t border-b border-r border-gray-600 text-right">
+                          <td className="p-3 border-t border-b border-r text-xl border-gray-600 text-right font-mono">
                             ₹{d.totalPaid}
                           </td>
                         </tr>
@@ -341,7 +438,7 @@ const StockEntry = () => {
                         <td className="p-3 border-t border-l border-b border-gray-600 font-semibold text-yellow-300">
                           Total
                         </td>
-                        <td className="p-3 border-t border-r border-b border-gray-600 text-right font-semibold text-yellow-300">
+                        <td className="p-3 border-t border-r border-b border-gray-600 text-right font-semibold text-yellow-300 font-mono">
                           ₹{entry.totalStockExpenses}
                         </td>
                       </tr>
@@ -353,32 +450,15 @@ const StockEntry = () => {
           )}
 
           {/* Remaining Amount */}
+          {/* Daily Balance Section */}
           {stockList.length > 0 && (
-            <div className="bg-white/10 mt-6 rounded-xl p-6 space-y-4">
+            <div className="bg-white/10 mt-6 rounded-xl p-6 space-y-6">
               <h3 className="text-lg font-bold text-cyan-400">
-                💰 Remaining Amount
+                💰 Daily Balance & Sources
               </h3>
-              <div className="grid sm:grid-cols-3 gap-4">
-                <input
-                  type="number"
-                  placeholder="Cash you have"
-                  value={amountHave}
-                  onChange={(e) => setAmountHave(e.target.value)}
-                  className="p-3 rounded-md bg-black/30 border border-gray-700 text-white"
-                />
-                <input
-                  readOnly
-                  value={`₹${stockList[0]?.totalStockExpenses || 0}`}
-                  className="p-3 rounded-md bg-black/30 border border-gray-700 text-yellow-400 font-bold"
-                />
-              </div>
-              {remainingAmount !== null && (
-                <div className="text-green-400 font-bold text-lg">
-                  Remaining: ₹{remainingAmount}
-                </div>
-              )}
 
-              <div className="space-y-4 mt-6">
+              {/* Extra Sources */}
+              <div className="space-y-4">
                 <h3 className="text-lg font-bold text-purple-400">
                   ➕ Add Extra Sources
                 </h3>
@@ -390,14 +470,15 @@ const StockEntry = () => {
                     placeholder="Pincode ₹"
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
-                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white font-mono"
                   />
+                 
                   <input
                     type="number"
                     placeholder="Paytm ₹"
                     value={paytm}
                     onChange={(e) => setPaytm(e.target.value)}
-                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-white font-mono"
                   />
                 </div>
 
@@ -424,7 +505,7 @@ const StockEntry = () => {
                         updated[i].amount = e.target.value;
                         setCompanies(updated);
                       }}
-                      className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white"
+                      className="col-span-5 p-3 rounded-md bg-black/30 border border-gray-700 text-white font-mono"
                     />
                     <button
                       onClick={() => {
@@ -439,22 +520,49 @@ const StockEntry = () => {
                   </div>
                 ))}
                 <button
-                  onClick={() =>
-                    setCompanies([...companies, { name: "", amount: "" }])
-                  }
+                  onClick={() => setCompanies([...companies, { name: "", amount: "" }])}
                   className="px-4 py-2 bg-green-600 rounded-full text-white"
                 >
                   + Add Company
                 </button>
               </div>
 
+              {/* Remaining Amount */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-emerald-400">
+                  📉 Remaining Amount
+                </h3>
+
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <input
+                    type="number"
+                    placeholder="Cash you have"
+                    value={amountHave}
+                    onChange={(e) => setAmountHave(e.target.value)}
+                    className="p-3 rounded-md bg-black/30 border border-gray-700 text-2xl text-white font-mono"
+                  />
+                  <input
+                    readOnly
+                    value={`₹${stockList[0]?.totalStockExpenses || 0}`}
+                    className="p-3 rounded-md bg-black/30 border text-2xl border-gray-700 text-yellow-400 font-bold font-mono"
+                  />
+                </div>
+
+                {remainingAmount !== null && (
+                  <div className="text-green-400 font-bold text-2xl font-mono">
+                    Remaining: ₹{remainingAmount}
+                  </div>
+                )}
+              </div>
+
               {/* Final Total */}
               <hr className="border-gray-600 my-4" />
-              <div className="text-xl font-bold text-yellow-300">
+              <div className="text-2xl font-bold text-yellow-300 font-mono">
                 Final Total: ₹{finalTotal}
               </div>
             </div>
           )}
+
         </div>
 
         <Notification />

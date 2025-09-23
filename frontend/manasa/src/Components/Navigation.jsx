@@ -5,7 +5,7 @@ import { GlobalContext } from '../context/globalContext'
 import ThemeToggle from './Theme'
 
 const Navigation = () => {
-  const {logout , isAuthUser , user} = useContext(GlobalContext)
+  const { logout, isAuthUser, user } = useContext(GlobalContext)
   const location = useLocation()
   const navigate = useNavigate()
   const isActive = (path) => location.pathname === path
@@ -53,19 +53,21 @@ const Navigation = () => {
           {/* Nav Links - hidden on small screens */}
           <div className="hidden sm:flex sm:space-x-8">
             {navOptions.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium font-serif transition duration-300 ${
-                  isActive(item.path)
-                    ? "text-yellow-300 drop-shadow-[0_0_6px_rgba(255,255,0,0.8)]"
-                    : "text-white hover:text-yellow-300 hover:drop-shadow-[0_0_6px_rgba(255,255,0,0.8)]"
-                }`}
-              >
-                <item.icon className="w-5 h-5 mr-2" />
-                {item.label}
-              </Link>
+             <Link
+             key={item.path}
+             to={item.path}
+             className={`relative inline-flex items-center px-3 py-1 text-sm font-medium font-serif transition duration-300 group
+               ${isActive(item.path) ? "text-blue-300" : "text-white hover:text-blue-300"}`}
+           >
+             <item.icon className="w-5 h-5 mr-2" />
+             {item.label}
+           
+             {/* Shiny underline */}
+             <span className="shiny-underline"></span>
+           </Link>
+           
             ))}
+
 
             {isAuthUser && (
               <button

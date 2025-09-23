@@ -4,14 +4,15 @@ import { getInitialCash, initialCounter } from '../controllers/counterCon.js'
 import { getRemainingCash, saveRemainingCash } from '../controllers/remCash.js'
 
 
+
 const app = express.Router()
 
 
 
-app.post('/initialCount', TryCatch(initialCounter))
-app.post('/remCash', TryCatch(saveRemainingCash))
-app.get('/getInitial', getInitialCash)
-app.get('/getRemainingCash', getRemainingCash)
+app.post('/initialCount',   TryCatch(initialCounter))
+app.post('/remCash',  TryCatch(saveRemainingCash))
+app.get('/getInitial',  getInitialCash)
+app.get('/getRemainingCash',   getRemainingCash)
 
 
 

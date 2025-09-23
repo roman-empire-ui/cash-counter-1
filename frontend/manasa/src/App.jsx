@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import StockEntry from './pages/StockEntry';
 import CashCounter from './pages/CashCounter';
@@ -14,11 +14,15 @@ import CashSummary from './pages/CashSummary';
 import SplashScreen from './Components/Splash';
 import LogoOverlay from './Components/ImageOverlay';
 import { ThemeProvider } from './context/ThemeContext';
+import Notification from './Components/Notification';
+import ErrorPage from './pages/ErrorPage';
+import ProtectedRoute from './context/AuthContext';
 
 const AppRoutes = () => {
-  const { isAuthUser, isRegistered, loading } = useContext(GlobalContext);
-  const location = useLocation(); // ✅ useLocation inside BrowserRouter
+  const { loading } = useContext(GlobalContext);
+  const location = useLocation();
 
+  // Show navigation only on routes other than splash
   const hideNavRoutes = ['/'];
   const shouldShowNav = !hideNavRoutes.includes(location.pathname);
 
@@ -34,24 +38,63 @@ const AppRoutes = () => {
     <>
       {shouldShowNav && <Navigation />}
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<SplashScreen />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Routes */}
         <Route
           path="/home"
           element={
-            isAuthUser ? (
+            
               <Home />
-            ) : (
-              <Navigate to={isRegistered ? '/login' : '/signup'} replace />
-            )
+            
           }
         />
-        <Route path="/stock-entry" element={<StockEntry />} />
-        <Route path="/cash-counter" element={<CashCounter />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/all-stocks" element={<AllStocks />} />
-        <Route path="/initial-cash" element={<InitialCash />} />
-        <Route path="/cash-summary" element={<CashSummary />} />
+        <Route
+          path="/stock-entry"
+          element={
+            <ProtectedRoute>
+              <StockEntry />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cash-counter"
+          element={
+            <ProtectedRoute>
+              <CashCounter />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/all-stocks"
+          element={
+            <ProtectedRoute>
+              <AllStocks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/initial-cash"
+          element={
+            <ProtectedRoute>
+              <InitialCash />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cash-summary"
+          element={
+            <ProtectedRoute>
+              <CashSummary />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all / 404 */}
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
   );
@@ -62,16 +105,14 @@ function App() {
     <ThemeProvider>
       <GlobalState>
         <BrowserRouter>
-        
           <div>
             <AppRoutes />
             <LogoOverlay />
+            <Notification />
           </div>
-
         </BrowserRouter>
       </GlobalState>
     </ThemeProvider>
-
   );
 }
 

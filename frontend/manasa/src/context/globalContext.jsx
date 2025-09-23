@@ -40,7 +40,7 @@ export default function GlobalState({ children }) {
   }, [user]);
 
   const logout = () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setIsAuthUser(false)
     setUser(null)
   }
