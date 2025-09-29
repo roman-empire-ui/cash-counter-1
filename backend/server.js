@@ -15,7 +15,8 @@ app.use(express.json())
 app.use(cors())
 
 //Port
-const PORT  = process.env.PORT_URI || 4000 
+const PORT  =  process.env.PORT ||  4000;
+
 
 app.use('/api/v1/admin', adminRoutes)
 app.use('/api/v1/stock' , stockRoutes)
