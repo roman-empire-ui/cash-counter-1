@@ -1,5 +1,4 @@
 import express from 'express'
-import { TryCatch } from '../middlewares/errors.js'
 import { getInitialCash, initialCounter } from '../controllers/counterCon.js'
 import { getRemainingCash, saveRemainingCash } from '../controllers/remCash.js'
 
