@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, Package2, CreditCard, PackageCheckIcon, DoorOpen } from 'lucide-react'
 import { GlobalContext } from '../context/globalContext'
-import ThemeToggle from './Theme'
+
 
 const Navigation = () => {
   const { logout, isAuthUser, user } = useContext(GlobalContext)
@@ -46,26 +46,24 @@ const Navigation = () => {
             </h1>
           </div>
 
-          <div className="flex justify-center">
-            <ThemeToggle />
-          </div>
+          
 
           {/* Nav Links - hidden on small screens */}
           <div className="hidden sm:flex sm:space-x-8">
             {navOptions.map((item) => (
-             <Link
-             key={item.path}
-             to={item.path}
-             className={`relative inline-flex items-center px-3 py-1 text-sm font-medium font-serif transition duration-300 group
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative inline-flex items-center px-3 py-1 text-sm font-medium font-serif transition duration-300 group
                ${isActive(item.path) ? "text-blue-300" : "text-white hover:text-blue-300"}`}
-           >
-             <item.icon className="w-5 h-5 mr-2" />
-             {item.label}
-           
-             {/* Shiny underline */}
-             <span className="shiny-underline"></span>
-           </Link>
-           
+              >
+                <item.icon className="w-5 h-5 mr-2" />
+                {item.label}
+
+                {/* Shiny underline */}
+                <span className="shiny-underline"></span>
+              </Link>
+
             ))}
 
 
@@ -73,7 +71,7 @@ const Navigation = () => {
               <button
                 title="Logout"
                 onClick={hanLogOut}
-                className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white hover:text-yellow-300 transition duration-300"
+                className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white hover:text-blue-300 transition duration-300"
               >
                 <DoorOpen className="w-5 h-5 mr-2" />
               </button>

@@ -212,6 +212,7 @@ const RemainingCash = () => {
   const companyPaidTotal = companies.reduce((s, c) => s + (Number(c.paidAmount) || 0), 0);
   const difference = Number(posibleOfflineAmount || 0) - Number(finalTotal || 0);
   const overAllSale = Number(posibleOfflineAmount || 0) + Number(posibleOnlineAmount)
+  const cashTotal = Number(cash || 0) + Number(companyPaidTotal || 0)
  
   return (
     <div className="h-screen w-full bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white flex flex-col">
@@ -333,11 +334,13 @@ const RemainingCash = () => {
       {/* Footer */}
       <footer className="p-4 border-t border-white/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="space-y-1">
-          <div className="text-yellow-400 text-lg font-bold font-mono">Cash Total: ₹{cash}</div>
-          <div className="text-blue-400 text-lg font-bold font-mono">Company Paid: ₹{companyPaidTotal}</div>
-          <div className="text-green-400 text-xl font-bold font-mono">Final Total: ₹{finalTotal}</div>
-          <div className="text-green-300 text-xl font-bold font-mono">Overall Sales: ₹{overAllSale}</div>
-          <div className="text-blue-400 text-lg font-bold font-mono">Difference: ₹{difference}</div>
+          <div className="text-yellow-400 text-lg  font-mono">Cash Total: ₹{cash}</div>
+          <div className="text-blue-400 text-lg  font-mono">Company Paid: ₹{companyPaidTotal}</div>
+          <div className="text-red-300 text-lg  font-mono">Extra Expenditures: ₹{cashTotal}</div>
+
+          <div className="text-green-400 text-xl  font-mono">Final Total: ₹{finalTotal}</div>
+          <div className="text-green-300 text-xl  font-mono">Overall Sales: ₹{overAllSale}</div>
+          <div className="text-blue-400 text-lg  font-mono">Difference: ₹{difference}</div>
           <div className={`text-xl font-bold font-mono ${difference <= 0 ? "text-green-400" : "text-red-400"}`}>
             Profit/Loss: ₹{difference}
             {finalTotal === posibleOfflineAmount
@@ -355,7 +358,7 @@ const RemainingCash = () => {
         </button>
       </footer>
 
-      <Notification />
+      <Notification/>
     </div>
   );
 };

@@ -1,14 +1,14 @@
 
-import {ToastContainer} from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
 
 
 
-  const Notification = () => {
+const Notification = () => {
 
 
     return (
-        <ToastContainer 
+        <ToastContainer
             position='top-right'
             autoClose={3000}
             hideProgressBar={false}

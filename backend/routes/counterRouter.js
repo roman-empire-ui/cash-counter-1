@@ -9,8 +9,8 @@ const app = express.Router()
 
 
 
-app.post('/initialCount',   TryCatch(initialCounter))
-app.post('/remCash',  TryCatch(saveRemainingCash))
+app.post('/initialCount',   initialCounter)
+app.post('/remCash', saveRemainingCash)
 app.get('/getInitial',  getInitialCash)
 app.get('/getRemainingCash',   getRemainingCash)
 

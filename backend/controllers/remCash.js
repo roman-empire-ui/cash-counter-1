@@ -22,20 +22,22 @@ export const saveRemainingCash = async (req, res) => {
     } = req.body;
 
     // Normalize date
-    const entryDate = date ? new Date(date) : new Date();
+    const entryDate =  new Date(date);
     entryDate.setUTCHours(0, 0, 0, 0);
 
     // Clean notes and coins
-    const validNotes = (notes || [])
-      .map((n) => ({ denomination: Number(n.denomination), count: Number(n.count) || 0 }))
-      .filter((n) => n.count > 0)
-      .map((n) => ({ ...n, total: n.denomination * n.count }));
-
-    const validCoins = (coins || [])
-      .map((c) => ({ denomination: Number(c.denomination), count: Number(c.count) || 0 }))
-      .filter((c) => c.count > 0)
-      .map((c) => ({ ...c, total: c.denomination * c.count }));
-
+    const validNotes = (notes || []).map((n) => ({
+      denomination: Number(n.denomination),
+      count: Number(n.count) || 0,
+      total: (Number(n.denomination) || 0) * (Number(n.count) || 0),
+    }));
+    
+    const validCoins = (coins || []).map((c) => ({
+      denomination: Number(c.denomination),
+      count: Number(c.count) || 0,
+      total: (Number(c.denomination) || 0) * (Number(c.count) || 0),
+    }));
+    
     // Physical cash
     const totalCash = [...validNotes, ...validCoins].reduce((sum, item) => sum + item.total, 0);
 

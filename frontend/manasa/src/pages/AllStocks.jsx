@@ -172,7 +172,7 @@ const AllStocks = () => {
   return (
     <div className="p-8 min-h-screen font-inter bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
       {/* Title */}
-      <h1 className="text-4xl font-serif font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 tracking-wide">
+      <h1 className="text-4xl animate-pulse font-serif font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 tracking-wide">
         Stock History
       </h1>
 
@@ -204,7 +204,7 @@ const AllStocks = () => {
                        hover:shadow-cyan-400/40 hover:scale-[1.04]
                        transition-all duration-300 ease-in-out"
             >
-              <h2 className="text-2xl font-bold text-cyan-300 mb-3">
+              <h2 className="text-2xltext-cyan-300 mb-3">
                 {entry.date?.split("T")[0]}
               </h2>
               <p className="text-gray-200 text-base">
@@ -215,7 +215,7 @@ const AllStocks = () => {
                 <span className="font-semibold">Amounts:</span>{" "}
                 {entry.distributors.map((d) => `₹${d.totalPaid}`).join(", ")}
               </p>
-              <p className="text-green-400 font-extrabold mt-4 text-xl drop-shadow">
+              <p className="text-green-400 mt-4 text-xl drop-shadow">
                 Total: ₹{entry.totalStockExpenses}
               </p>
             </div>
@@ -343,7 +343,7 @@ const AllStocks = () => {
                         onClick={() => hanDeleteDistributor(selectedStock._id, d._id)}
                         className="mt-3 px-3 ml-4 py-1 bg-blue-600 rounded-full hover:bg-red-500"
                       >
-                        <Trash2 size={20}/>
+                        <Trash2 size={20} />
                       </button>
                     </>
                   )}

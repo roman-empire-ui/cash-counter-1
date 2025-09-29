@@ -130,7 +130,7 @@ const StockEntry = () => {
         setTotal(0);
       }
     } else {
-      toast.error('Failed to load stock data');
+      toast.error(res.message ||'Failed to load stock data');
     }
     setLoading(false);
   };
@@ -217,7 +217,7 @@ const StockEntry = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black text-white p-4 sm:p-6 md:p-8 font-serif">
       <div className="max-w-5xl mx-auto space-y-8">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-green-400 font-serif">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-green-400 font-serif animate-bounce">
             📦 Daily Stock Entry
           </h1>
           <span className="text-sm text-gray-400">
@@ -307,14 +307,14 @@ const StockEntry = () => {
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <button
               onClick={addDistributor}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white cursor-pointer"
             >
               <PlusCircle className="w-5 h-5" />
               Add Supplier
             </button>
             <button
               onClick={submitStockEntry}
-              className="flex items-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-lg cursor-pointer"
             >
               <FilePlus2 className="w-6 h-6" />
               Submit Entry
@@ -324,8 +324,8 @@ const StockEntry = () => {
 
         {/* Stock Summary */}
         <div ref={summaryRef} className="bg-white/5 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-emerald-400 mb-4">
-            📊 Stock Summary
+          <h2 className="text-xl font-bold text-emerald-400 mb-4 animate-bounce">
+             Stock Summary
           </h2>
 
           {loading ? (
@@ -453,7 +453,7 @@ const StockEntry = () => {
           {/* Daily Balance Section */}
           {stockList.length > 0 && (
             <div className="bg-white/10 mt-6 rounded-xl p-6 space-y-6">
-              <h3 className="text-lg font-bold text-cyan-400">
+              <h3 className="text-lg font-bold text-cyan-400 animate-bounce">
                 💰 Daily Balance & Sources
               </h3>
 
@@ -529,8 +529,8 @@ const StockEntry = () => {
 
               {/* Remaining Amount */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-emerald-400">
-                  📉 Remaining Amount
+                <h3 className="text-lg text-emerald-400 animate-bounce">
+                  Remaining Amount
                 </h3>
 
                 <div className="grid sm:grid-cols-3 gap-4">
@@ -544,12 +544,12 @@ const StockEntry = () => {
                   <input
                     readOnly
                     value={`₹${stockList[0]?.totalStockExpenses || 0}`}
-                    className="p-3 rounded-md bg-black/30 border text-2xl border-gray-700 text-yellow-400 font-bold font-mono"
+                    className="p-3 rounded-md bg-black/30 border text-2xl border-gray-700 text-yellow-400 font-mono"
                   />
                 </div>
 
                 {remainingAmount !== null && (
-                  <div className="text-green-400 font-bold text-2xl font-mono">
+                  <div className="text-green-400 text-2xl font-mono">
                     Remaining: ₹{remainingAmount}
                   </div>
                 )}
@@ -557,7 +557,7 @@ const StockEntry = () => {
 
               {/* Final Total */}
               <hr className="border-gray-600 my-4" />
-              <div className="text-2xl font-bold text-yellow-300 font-mono">
+              <div className="text-2xl text-yellow-300 font-mono">
                 Final Total: ₹{finalTotal}
               </div>
             </div>

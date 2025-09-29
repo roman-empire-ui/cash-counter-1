@@ -2,17 +2,17 @@ const localhost = 4001
 
 
 const genToken = () => {
-    const userFromStorage = localStorage.getItem('user'); 
+    const userFromStorage = localStorage.getItem('user');
     if (!userFromStorage) return null;
     try {
-      const user = JSON.parse(userFromStorage);
-      return user?.token;  
+        const user = JSON.parse(userFromStorage);
+        return user?.token;
     } catch (err) {
-      console.error("Error parsing user token:", err)
-      return null;
+        console.error("Error parsing user token:", err)
+        return null;
     }
-  }
-  
+}
+
 console.log("Token being sent:", genToken());
 
 const authHeaders = () => {
@@ -20,10 +20,10 @@ const authHeaders = () => {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers.Authorization = `Bearer ${token}`;
     return headers;
-  };
-  
+};
 
-  
+
+
 
 
 
@@ -33,7 +33,7 @@ export const stockEntry = async ({ date, distributors }) => {
     try {
         const res = await fetch(`http://localhost:${localhost}/api/v1/stock/stockEntry`, {
             method: 'POST',
-            headers : authHeaders(),
+            headers: authHeaders(),
             body: JSON.stringify({ date, distributors })
         })
 
@@ -70,7 +70,7 @@ export const updateStock = async ({ stockId, distributorId, name, totalPaid }) =
     try {
         const res = await fetch(`http://localhost:${localhost}/api/v1/stock/updateStock/${stockId}/${distributorId}`, {
             method: 'PUT',
-            headers:authHeaders(),
+            headers: authHeaders(),
 
             body: JSON.stringify({ name, totalPaid })
         })
@@ -91,7 +91,7 @@ export const deleteStock = async ({ stockId, distributorId }) => {
     try {
         const res = await fetch(`http://localhost:${localhost}/api/v1/stock/deleteDist/${stockId}/${distributorId}`, {
             method: 'DELETE',
-            headers : authHeaders()
+            headers: authHeaders()
         })
         const data = await res.json()
         return data

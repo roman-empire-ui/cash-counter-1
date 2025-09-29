@@ -10,7 +10,7 @@ const SplashScreen = () => {
 
 
   useEffect(() => {
-   
+
     const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(() => {
@@ -35,7 +35,7 @@ const SplashScreen = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
-          
+
           <motion.div
             className="text-center"
             initial={{ scale: 0.8, opacity: 0 }}
@@ -51,7 +51,7 @@ const SplashScreen = () => {
                 textShadow: '0 0 10px rgba(255, 255, 255, 0.7)',
               }}
             >
-              Sri Manasa Super Market 
+              Sri Manasa Super Market
             </motion.h1>
 
             <motion.p

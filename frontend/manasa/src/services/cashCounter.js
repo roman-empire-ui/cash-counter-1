@@ -22,13 +22,13 @@ const localhost = 4001
 
 
 
-export const cashCount = async (notes , coins) => {
+export const cashCount = async (date ,notes , coins) => {
 
     try {
         const res = await fetch(`http://localhost:${localhost}/api/v1/counter/initialCount`, {
             method : "POST",
             ...authHeaders(),
-            body : JSON.stringify({notes , coins})
+            body : JSON.stringify({date ,notes , coins})
         })
 
         const data = await res.json() 
@@ -42,15 +42,16 @@ export const cashCount = async (notes , coins) => {
 
 
 
-export const getInitialCount = async () => {
+export const getInitialCount = async (date) => {
     try {
-        const response = await fetch(`http://localhost:${localhost}/api/v1/counter/getInitial`, {
-            method : 'GET',
-            ... authHeaders()
 
-        })
+        const url = date? `http://localhost:${localhost}/api/v1/counter/getInitial?date=${date}` :
+        `http://localhost:${localhost}/api/v1/counter/getInitial`
+    
+        const res = await fetch(url , {method : 'GET' , ...authHeaders()})
 
-        const data = await response.json()
+        const data = await res.json()
+        console.log(data)
         return data
     } catch (e) {
         console.log('error' , e)

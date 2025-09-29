@@ -25,7 +25,7 @@ export const createDistributor = async (name) => {
     try {
         const res = await fetch(`http://localhost:${localhost}/api/v1/dist/createDist`, {
             method: 'POST',
-            headers: authHeaders(),
+             ...authHeaders(),
             body: JSON.stringify({name})
         })
 
@@ -41,7 +41,7 @@ export const searchDistributor = async (query) => {
 
         const res = await fetch(`http://localhost:${localhost}/api/v1/dist/searchDist?query=${encodeURIComponent(query)}`, {
             method: 'GET',
-            headers : authHeaders()
+            ...authHeaders()
 
         })
         return await res.json()

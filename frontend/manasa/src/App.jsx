@@ -47,9 +47,11 @@ const AppRoutes = () => {
         <Route
           path="/home"
           element={
-            
+            <ProtectedRoute>
               <Home />
-            
+            </ProtectedRoute>
+
+
           }
         />
         <Route
@@ -102,17 +104,17 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <GlobalState>
-        <BrowserRouter>
-          <div>
-            <AppRoutes />
-            <LogoOverlay />
-            <Notification />
-          </div>
-        </BrowserRouter>
-      </GlobalState>
-    </ThemeProvider>
+
+    <GlobalState>
+      <BrowserRouter>
+        <div>
+          <AppRoutes />
+          <LogoOverlay />
+          <Notification />
+        </div>
+      </BrowserRouter>
+    </GlobalState>
+
   );
 }
 

@@ -12,7 +12,8 @@ const InitialCash = () => {
     const fetchCash = async () => {
       setLoading(true);
       const initialCash = await getInitialCount();
-      if (initialCash) setInitial(initialCash?.data?.initialCash);
+      console.log('frontend',  initialCash)
+      if (initialCash?.success) setInitial(initialCash?.initialCash);
       setLoading(false);
     };
     fetchCash();
@@ -37,7 +38,7 @@ const InitialCash = () => {
               {initial.notes.map((note) => (
                 <div
                   key={note.denomination}
-                  className="flex justify-between text-sm text-white border-b border-white/20 py-1 font-serif"
+                  className="flex justify-between text-sm text-white border-b border-white/20 py-1 font-mono"
                 >
                   <span>₹{note.denomination} × {note.count}</span>
                   <span>= ₹{note.total}</span>
@@ -51,7 +52,7 @@ const InitialCash = () => {
               {initial.coins.map((coin) => (
                 <div
                   key={coin.denomination}
-                  className="flex justify-between text-sm text-white border-b border-white/20 py-1 font-serif"
+                  className="flex justify-between text-sm text-white border-b border-white/20 py-1 font-mono"
                 >
                   <span>₹{coin.denomination} × {coin.count}</span>
                   <span>= ₹{coin.total}</span>
@@ -67,7 +68,7 @@ const InitialCash = () => {
 
         {/* Total */}
         {initial && (
-          <div className="text-center font-bold text-green-400 text-lg mt-6 font-serif">
+          <div className="text-center font-bold text-green-400 text-lg mt-6 font-mono">
             Total: ₹{initial.totalInitialCash}
           </div>
         )}

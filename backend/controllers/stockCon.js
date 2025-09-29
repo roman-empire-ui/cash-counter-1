@@ -162,7 +162,7 @@ export const deleteDistributor = async(req , res) =>{
 
 export const remAmt =async (req, res) => {
   try {
-    const { date, amountHave, stockEntryId } = req.body;
+    const { date, amountHave, stockEntryId, extraSources } = req.body;
 
     const stockEntry = await Stock.findById(stockEntryId);
     if (!stockEntry) {
@@ -170,7 +170,8 @@ export const remAmt =async (req, res) => {
     }
 
     const totalExpense = stockEntry.totalStockExpenses;
-    const remainingAmount = Number(amountHave) - Number(totalExpense);
+    const extraTotal = (extraSources?.pincode || 0) + (extraSources?.paytm || 0) + (extraSources?.companies?.reduce((sum , c) => sum + Number(c.amount || 0) ,0) || 0)
+    const remainingAmount = Number(amountHave) + extraTotal - Number(totalExpense);
 
     // ✅ Check if entry for the date exists
     const existing = await RemAmount.findOne({ date: new Date(date) });
@@ -180,6 +181,7 @@ export const remAmt =async (req, res) => {
       existing.amountHave = amountHave;
       existing.remainingAmount = remainingAmount;
       existing.stockEntry = stockEntryId;
+      existing.extraSources = extraSources || {}
       await existing.save();
       return res.status(200).json({ success: true, message: 'Updated successfully', data: existing });
     } else {
@@ -188,7 +190,9 @@ export const remAmt =async (req, res) => {
         date: new Date(date),
         amountHave,
         remainingAmount,
-        stockEntry : stockEntryId
+        stockEntry : stockEntryId,
+        extraSources : extraSources || {}
+
       });
       return res.status(201).json({ success: true, message: 'Created successfully', data: newEntry });
     }
